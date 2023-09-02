@@ -24,6 +24,7 @@ export function Input({
         type="number"
         onChange={onChange}
         value={value}
+        max={Number.MAX_SAFE_INTEGER}
       />
     </div>
   );

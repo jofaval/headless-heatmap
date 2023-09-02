@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useId, useState } from "react";
+import React, { PropsWithChildren, useEffect, useId, useState } from "react";
 import {
   HeatmapBarRange,
   getAllValuesFromData,
@@ -64,12 +64,12 @@ function HeatmapBar({
 
       <div className="indices" id={indicesId}>
         {getHeatmapBarRanges({ reverse, steps }).map(({ end, start }) => (
-          <div
+          <button
             className="index"
             // TODO: add padding right so that it hovers over the gradient
             onClick={() => filterByRange({ end, start })}>
             {Math.round(end)}
-          </div>
+          </button>
         ))}
       </div>
 
@@ -82,6 +82,7 @@ type HeatmapCellProps = {
   percentage: number;
   value: number;
   selected: boolean;
+  tryingToSelect: boolean;
   setHoverPercentage: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 
@@ -90,25 +91,22 @@ function HeatmapCell({
   selected,
   setHoverPercentage,
   value,
+  tryingToSelect,
 }: HeatmapCellProps) {
+  const careAboutHover = !tryingToSelect || selected;
+
   return (
     <td
-      className="heatmap-cell"
-      onMouseEnter={() => setHoverPercentage(percentage)}
-      onMouseMove={() => setHoverPercentage(percentage)}
+      className={classNames("heatmap-cell", selected ? "--selected" : "")}
+      onMouseEnter={() => !careAboutHover || setHoverPercentage(percentage)}
+      onMouseMove={() => !careAboutHover || setHoverPercentage(percentage)}
       onMouseLeave={() => setHoverPercentage(undefined)}>
       <div
         style={{ opacity: percentage / 100 }}
         className="heatmap-cell__background"
       />
 
-      <div
-        className={classNames(
-          "heatmap-cell__value",
-          selected ? "selected" : ""
-        )}>
-        {value}
-      </div>
+      <div className={classNames("heatmap-cell__value")}>{value}</div>
     </td>
   );
 }
@@ -137,11 +135,42 @@ function App() {
   const [hoverPercentage, setHoverPercentage] = useState<number>();
 
   const [filteredCells, setFilteredCells] = useState<number[]>([]);
+  const [selectedRange, setSelectedRange] = useState<{
+    start: number;
+    end: number;
+  }>();
+
+  const cleanupFilter = () => {
+    setFilteredCells([]);
+    setSelectedRange(undefined);
+  };
+  useEffect(cleanupFilter, [data]);
 
   const filterByRange = ({ end, start }: { start: number; end: number }) => {
     const allValues = getAllValuesFromData({ data });
     const filteredValues = allValues.filter((n) => start <= n && n <= end);
+
+    if (!filteredValues.length) {
+      console.warn("resetting changes, no value was found with this filter", {
+        start,
+        end,
+        filteredValues,
+      });
+      cleanupFilter();
+      return;
+    }
+
+    const serializedPrevious = filteredCells.sort().toString();
+    const serializedCurrent = filteredValues.sort().toString();
+    const rangeHasChanged = serializedPrevious !== serializedCurrent;
+
+    if (!rangeHasChanged) {
+      cleanupFilter();
+      return;
+    }
+
     setFilteredCells(filteredValues);
+    setSelectedRange({ end, start });
   };
 
   return (
@@ -159,6 +188,13 @@ function App() {
 
           {SHOW_CURRENT_PERCENTAGE && hoverPercentage !== undefined ? (
             <div>Current percentage: {hoverPercentage?.toFixed(2)}%</div>
+          ) : null}
+
+          {selectedRange ? (
+            <div>
+              Selected range: {Math.round(selectedRange.start)} -{" "}
+              {Math.round(selectedRange.end)}
+            </div>
           ) : null}
         </div>
       </header>
@@ -188,6 +224,7 @@ function App() {
                     percentage={percentage}
                     value={value}
                     selected={filteredCells.includes(value)}
+                    tryingToSelect={!!filteredCells.length}
                     setHoverPercentage={setHoverPercentage}
                   />
                 ))}
