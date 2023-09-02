@@ -68,6 +68,7 @@ function HeatmapCell({
     <td
       className="heatmap-cell"
       onMouseEnter={() => setHoverPercentage(percentage)}
+      onMouseMove={() => setHoverPercentage(percentage)}
       onMouseLeave={() => setHoverPercentage(undefined)}>
       <div
         style={{ opacity: percentage }}
@@ -82,9 +83,23 @@ function HeatmapRow({ children }: PropsWithChildren) {
   return <tr>{children}</tr>;
 }
 
+const ROWS = 10;
+const COLS = 10;
+
+const MAX_NUMBER = 20;
+const data = Array.from(Array(ROWS).keys()).map(() => {
+  return Array.from(Array(COLS).keys()).map(() => {
+    return Math.floor(Math.random() * MAX_NUMBER);
+  });
+});
+
 function App() {
-  const data = [];
-  const headers = ["Column", "Column", "Column", "Column", "Column"];
+  const columnHeaders = Array.from(Array(ROWS).keys()).map(
+    (_, index) => `Column ${index + 1}`
+  );
+  const rowHeaders = Array.from(Array(COLS).keys()).map(
+    (_, index) => `Row ${index + 1}`
+  );
 
   const { getHeatmapRows, getHeatmapBarRanges } = useHeatmap({ data });
   const [hoverPercentage, setHoverPercentage] = useState<number>();
@@ -93,7 +108,7 @@ function App() {
 
   const filterByRange = ({ end, start }: { start: number; end: number }) => {
     const allValues = getAllValuesFromData({ data });
-    const filteredValues = allValues.filter((n) => n >= start && n <= end);
+    const filteredValues = allValues.filter((n) => start <= n && n <= end);
     setFilteredCells(filteredValues);
   };
 
@@ -101,15 +116,15 @@ function App() {
     <div>
       <table className={filteredCells.length ? "--with-selection" : ""}>
         <thead>
-          {headers.map((caption) => (
+          {columnHeaders.map((caption) => (
             <th>{caption}</th>
           ))}
         </thead>
 
         <tbody>
-          {getHeatmapRows().map((row) => (
+          {getHeatmapRows().map((row, rowIndex) => (
             <HeatmapRow>
-              <td className="row-header">Row</td>
+              <td className="row-header">{rowHeaders[rowIndex]}</td>
 
               {row.map(({ percentage, value }) => (
                 <HeatmapCell
