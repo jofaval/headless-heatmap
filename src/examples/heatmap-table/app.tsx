@@ -4,7 +4,7 @@ import {
   getAllValuesFromData,
   useHeatmap,
 } from "../../../packages/react/src/heatmap.hook";
-import { Input } from "./configuration-input.component";
+import { Input, capitalize } from "./configuration-input.component";
 import { useConfiguration, useDataGeneration } from "./data-generation.hook";
 
 import "./app.css";
@@ -118,6 +118,15 @@ function HeatmapRow({ children }: PropsWithChildren) {
 const SHOW_BAR = true;
 const SHOW_CURRENT_PERCENTAGE = false;
 
+const COLOR_SCHEME_OPTIONS = ["red", "blue", "green", "purple"];
+type ColorScheme =
+  (typeof COLOR_SCHEME_OPTIONS)[keyof typeof COLOR_SCHEME_OPTIONS];
+const SELECTED_SCHEME: ColorScheme = "blue";
+
+const THEME_OPTIONS = ["dark", "light"];
+type Theme = (typeof THEME_OPTIONS)[keyof typeof THEME_OPTIONS];
+const SELECTED_THEME: Theme = "dark";
+
 function App() {
   const { cols, max, onChange, rows, chance } = useConfiguration();
   const { columnHeaders, data, rowHeaders } = useDataGeneration({
@@ -173,6 +182,24 @@ function App() {
     setSelectedRange({ end, start });
   };
 
+  const [colorScheme, setColorScheme] = useState<string>(
+    SELECTED_SCHEME as string
+  );
+  useEffect(() => {
+    document.body.classList.add(colorScheme);
+    return () => {
+      document.body.classList.remove(colorScheme);
+    };
+  }, [colorScheme]);
+
+  const [theme, setTheme] = useState<string>(SELECTED_THEME as string);
+  useEffect(() => {
+    document.body.classList.add(theme);
+    return () => {
+      document.body.classList.remove(theme);
+    };
+  }, [theme]);
+
   return (
     <div>
       <header>
@@ -181,6 +208,36 @@ function App() {
           <Input onChange={onChange} name="cols" value={cols} />
           <Input onChange={onChange} name="max" value={max} />
           <Input onChange={onChange} name="chance" value={chance} />
+
+          <div className="form-group">
+            <label htmlFor="color-scheme">Color Scheme</label>
+
+            <select
+              id="color-scheme"
+              value={colorScheme}
+              onChange={(evt) => setColorScheme(evt.target.value)}>
+              {COLOR_SCHEME_OPTIONS.map((value, index) => (
+                <option value={value} key={index}>
+                  {capitalize(value)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="color-scheme">Theme</label>
+
+            <select
+              id="theme"
+              value={theme}
+              onChange={(evt) => setTheme(evt.target.value)}>
+              {THEME_OPTIONS.map((value, index) => (
+                <option value={value} key={index}>
+                  {capitalize(value)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="current-max">

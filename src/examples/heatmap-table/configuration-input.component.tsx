@@ -1,4 +1,6 @@
-const capitalize = <T extends string>(text: T): Capitalize<Lowercase<T>> => {
+export const capitalize = <T extends string>(
+  text: T
+): Capitalize<Lowercase<T>> => {
   const transformed =
     text.charAt(0).toLocaleUpperCase() + text.substring(1).toLocaleLowerCase();
 
