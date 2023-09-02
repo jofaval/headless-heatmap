@@ -57,6 +57,8 @@
 
   flex: 100%;
   width: calc(100% + var(--spacing));
+  display: flex;
+  align-items: start;
 
   cursor: pointer;
   background: transparent;

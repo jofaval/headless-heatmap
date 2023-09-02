@@ -158,6 +158,7 @@ function App() {
   const filterByRange = ({ end, start }: { start: number; end: number }) => {
     const allValues = getAllValuesFromData({ data });
     const filteredValues = allValues.filter((n) => start <= n && n <= end);
+    console.log({ start, end, allValues, filteredValues });
 
     if (!filteredValues.length) {
       console.warn("resetting changes, no value was found with this filter", {
