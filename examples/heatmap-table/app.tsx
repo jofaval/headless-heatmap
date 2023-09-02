@@ -51,17 +51,19 @@ function HeatmapBar({
   );
 }
 
+type HeatmapCellProps = {
+  percentage: number;
+  value: number;
+  selected: boolean;
+  setHoverPercentage: React.Dispatch<React.SetStateAction<number | undefined>>;
+};
+
 function HeatmapCell({
   percentage,
   value,
   selected,
   setHoverPercentage,
-}: {
-  percentage: number;
-  value: number;
-  selected: boolean;
-  setHoverPercentage: React.Dispatch<React.SetStateAction<number | undefined>>;
-}) {
+}: HeatmapCellProps) {
   return (
     <td
       className="heatmap-cell"
@@ -95,8 +97,6 @@ function App() {
     setFilteredCells(filteredValues);
   };
 
-  const orientation = "vertical";
-
   return (
     <div>
       <table className={filteredCells.length ? "--with-selection" : ""}>
@@ -128,7 +128,7 @@ function App() {
         filterByRange={filterByRange}
         getHeatmapBarRanges={getHeatmapBarRanges}
         hoverPercentage={hoverPercentage}
-        orientation={orientation}
+        orientation="vertical"
       />
     </div>
   );
