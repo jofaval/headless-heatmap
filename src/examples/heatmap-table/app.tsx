@@ -3,8 +3,11 @@ import {
   HeatmapBarRange,
   getAllValuesFromData,
   useHeatmap,
-} from "../../packages/react/src/heatmap.hook";
+} from "../../../packages/react/src/heatmap.hook";
+import { Input } from "./configuration-input.component";
 import { useConfiguration, useDataGeneration } from "./data-generation.hook";
+
+import "./app.css";
 
 const classNames = (...classes: (string | undefined)[]) => {
   return classes.filter(Boolean).join(" ");
@@ -13,9 +16,9 @@ const classNames = (...classes: (string | undefined)[]) => {
 type HeatmapBarProps = {
   hoverPercentage: number | undefined;
   orientation?: string;
-  getHeatmapBarRanges: (props?: {
-    reverse?: boolean | undefined;
-    steps?: number | undefined;
+  getHeatmapBarRanges: (props: {
+    reverse?: boolean;
+    steps?: number;
   }) => HeatmapBarRange[];
   filterByRange: (props: { start: number; end: number }) => void;
   reverse?: boolean;
@@ -72,10 +75,16 @@ function HeatmapCell({
       onMouseMove={() => setHoverPercentage(percentage)}
       onMouseLeave={() => setHoverPercentage(undefined)}>
       <div
-        style={{ opacity: percentage }}
+        style={{ opacity: percentage / 100 }}
         className="heatmap-cell__background"
       />
-      <div className={selected ? "selected" : ""}>{value}</div>
+      <div
+        className={classNames(
+          "heatmap-cell__value",
+          selected ? "selected" : ""
+        )}>
+        {value}
+      </div>
     </td>
   );
 }
@@ -84,36 +93,7 @@ function HeatmapRow({ children }: PropsWithChildren) {
   return <tr>{children}</tr>;
 }
 
-const capitalize = <T extends string>(text: T): Capitalize<Lowercase<T>> => {
-  const transformed =
-    text.charAt(0).toLocaleUpperCase() + text.substring(1).toLocaleLowerCase();
-
-  return transformed as Capitalize<Lowercase<T>>;
-};
-
-function Input({
-  onChange,
-  value,
-  name,
-}: {
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
-  value: number;
-  name: string;
-}) {
-  return (
-    <div className="form-group">
-      <label htmlFor={name}>{`${capitalize(name)}:`}</label>
-
-      <input
-        name={name}
-        id={name}
-        type="number"
-        onChange={onChange}
-        value={value}
-      />
-    </div>
-  );
-}
+const SHOW_BAR = false;
 
 function App() {
   const { cols, max, onChange, rows } = useConfiguration();
@@ -123,7 +103,11 @@ function App() {
     rows,
   });
 
-  const { getHeatmapRows, getHeatmapBarRanges } = useHeatmap({ data });
+  const {
+    getHeatmapRows,
+    getHeatmapBarRanges,
+    max: currentMax,
+  } = useHeatmap({ data });
   const [hoverPercentage, setHoverPercentage] = useState<number>();
 
   const [filteredCells, setFilteredCells] = useState<number[]>([]);
@@ -137,26 +121,42 @@ function App() {
   return (
     <div>
       <header>
-        <Input onChange={onChange} name="rows" value={rows} />
-        <Input onChange={onChange} name="cols" value={cols} />
-        <Input onChange={onChange} name="max" value={max} />
+        <div className="configuration-inputs">
+          <Input onChange={onChange} name="rows" value={rows} />
+          <Input onChange={onChange} name="cols" value={cols} />
+          <Input onChange={onChange} name="max" value={max} />
+        </div>
+
+        <div className="current-max">
+          <div>Max: {currentMax}</div>
+          {hoverPercentage ? (
+            <div>Current percentage: {hoverPercentage?.toFixed(2)}%</div>
+          ) : null}
+        </div>
       </header>
 
       <main className="heatmap">
-        <table className={filteredCells.length ? "--with-selection" : ""}>
+        <table
+          className={classNames(
+            "heatmap__table",
+            filteredCells.length ? "--with-selection" : ""
+          )}>
           <thead>
-            {columnHeaders.map((caption) => (
-              <th>{caption}</th>
-            ))}
+            <tr>
+              {columnHeaders.map((caption) => (
+                <th>{caption}</th>
+              ))}
+            </tr>
           </thead>
 
           <tbody>
             {getHeatmapRows().map((row, rowIndex) => (
-              <HeatmapRow>
+              <HeatmapRow key={rowIndex}>
                 <td className="row-header">{rowHeaders[rowIndex]}</td>
 
-                {row.map(({ percentage, value }) => (
+                {row.map(({ percentage, value }, colIndex) => (
                   <HeatmapCell
+                    key={colIndex}
                     percentage={percentage}
                     value={value}
                     selected={filteredCells.includes(value)}
@@ -168,12 +168,14 @@ function App() {
           </tbody>
         </table>
 
-        <HeatmapBar
-          filterByRange={filterByRange}
-          getHeatmapBarRanges={getHeatmapBarRanges}
-          hoverPercentage={hoverPercentage}
-          orientation="vertical"
-        />
+        {SHOW_BAR ? (
+          <HeatmapBar
+            filterByRange={filterByRange}
+            getHeatmapBarRanges={getHeatmapBarRanges}
+            hoverPercentage={hoverPercentage}
+            orientation="vertical"
+          />
+        ) : null}
       </main>
     </div>
   );

@@ -1,6 +1,6 @@
-import { Reducer, useReducer } from "react";
+import { Reducer, useMemo, useReducer } from "react";
 
-const INITIAL_CONFIGURATION = { rows: 10, cols: 10, max: 20 };
+const INITIAL_CONFIGURATION = { rows: 100, cols: 20, max: 2_000 };
 type Configuration = typeof INITIAL_CONFIGURATION;
 
 type ConfigurationReducer = Reducer<
@@ -25,19 +25,26 @@ export const useConfiguration = () => {
   return { cols, max, rows, onChange };
 };
 
-export const useDataGeneration = ({ cols, max, rows }: Configuration) => {
-  const data = Array.from(Array(rows).keys()).map(() => {
-    return Array.from(Array(cols).keys()).map(() => {
-      return Math.floor(Math.random() * max);
-    });
-  });
+const ROW_COL_HEADER = "";
 
-  const columnHeaders = Array.from(Array(rows).keys()).map(
-    (_, index) => `Column ${index + 1}`
-  );
-  const rowHeaders = Array.from(Array(cols).keys()).map(
-    (_, index) => `Row ${index + 1}`
-  );
+export const useDataGeneration = ({ cols, max, rows }: Configuration) => {
+  const data = useMemo(() => {
+    return Array.from(Array(rows).keys()).map(() => {
+      return Array.from(Array(cols).keys()).map(() => {
+        return Math.floor(Math.random() * max);
+      });
+    });
+  }, [cols, max, rows]);
+
+  const columnHeaders = useMemo(() => {
+    return [ROW_COL_HEADER].concat(
+      Array.from(Array(cols).keys()).map((_, index) => `Column ${index + 1}`)
+    );
+  }, [cols]);
+
+  const rowHeaders = useMemo(() => {
+    return Array.from(Array(rows).keys()).map((_, index) => `Row ${index + 1}`);
+  }, [rows]);
 
   return { data, columnHeaders, rowHeaders };
 };

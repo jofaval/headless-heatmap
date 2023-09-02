@@ -5,14 +5,36 @@ export type HeatmapBarRange = {
   end: number;
 };
 
+type HeatmapBarRangeProps = { reverse: boolean; steps: number };
+
+const pureGetHeatmapBarRanges = ({
+  steps,
+  reverse,
+  max,
+}: HeatmapBarRangeProps & {
+  max: number;
+}): HeatmapBarRange[] => {
+  const ranges: HeatmapBarRange[] = [];
+
+  const stepSize = max / steps;
+  for (let index = 1; index <= steps; index++) {
+    // the +1 might lead up to errors
+    ranges.push({
+      start: index - 1,
+      end: Math.round(index * stepSize) + 1,
+    });
+  }
+
+  return reverse ? ranges.reverse() : ranges;
+};
+
 export const useHeatmapBar = ({ max }: { max: number }) => {
-  const getHeatmapBarRanges = ({
-    steps = 4,
-    reverse = false,
-  }: { reverse?: boolean; steps?: number } = {}): HeatmapBarRange[] => {
-    const ranges = [];
-    return ranges;
-  };
+  const getHeatmapBarRanges = useCallback(
+    ({ steps = 4, reverse = false }: Partial<HeatmapBarRangeProps>) => {
+      return pureGetHeatmapBarRanges({ max, reverse, steps });
+    },
+    [max]
+  );
 
   return { getHeatmapBarRanges };
 };
@@ -26,14 +48,14 @@ type HeatmapHookProps = {
 export const getAllValuesFromData = ({
   data,
 }: Pick<HeatmapHookProps, "data">) => {
-  return data.reduce((acc, curr) => {
-    acc.concat(curr);
-    return acc;
-  }, [] as number[]);
+  return data.reduce((acc, curr) => acc.concat(curr), [] as number[]);
 };
 
 const getMaxFromArray = (numbers: number[]) => {
-  return numbers.reduce((prev, curr) => (prev > curr ? curr : prev), -Infinity);
+  return numbers.reduce(
+    (prev, curr) => (curr > prev ? curr : prev),
+    Number.MIN_SAFE_INTEGER
+  );
 };
 
 type GetRelativePercentageFromValueProps =
@@ -47,7 +69,7 @@ const pureGetRelativePercentageFromValue = (
 ) => {
   let value: number;
   if ("x" in props) {
-    value = props.data[props.x][props.y];
+    value = props.data[props.x]![props.y]!;
   } else {
     value = props.value;
   }
@@ -66,7 +88,7 @@ export const useHeatmap = ({ data, max: candidateMax }: HeatmapHookProps) => {
 
     const values = getAllValuesFromData({ data });
     return getMaxFromArray(values);
-  }, [data]);
+  }, [data, candidateMax]);
 
   const { getHeatmapBarRanges } = useHeatmapBar({ max });
 
@@ -86,7 +108,7 @@ export const useHeatmap = ({ data, max: candidateMax }: HeatmapHookProps) => {
         percentage: getRelativePercentageFromValue({ value }),
       }));
     });
-  }, [data]);
+  }, [data, getRelativePercentageFromValue]);
 
   return {
     max,
