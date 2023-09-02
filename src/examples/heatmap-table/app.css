@@ -1,5 +1,15 @@
 /* TODO: make it easier to style */
 
+:root {
+  /* RED */
+  --heatmap-cell-color: hsl(0, 100%, 50%);
+  --heatmap-cell-color-hover: hsl(0, 100%, 64%);
+
+  /* BLUE */
+  --heatmap-cell-color: hsl(200, 100%, 50%);
+  --heatmap-cell-color-hover: hsl(200, 100%, 64%);
+}
+
 body {
   background-color: hsl(210, 16%, 13%);
   color: white;
@@ -88,7 +98,11 @@ input {
   width: 20px;
 
   border-radius: 5px;
-  background: linear-gradient(to bottom, red 0%, transparent 100%);
+  background: linear-gradient(
+    to bottom,
+    var(--heatmap-cell-color) 0%,
+    transparent 100%
+  );
 }
 /* .heatmap-bar .gradient.vertical */
 
@@ -138,7 +152,7 @@ tr:nth-child(odd) {
 
 .heatmap-cell__background {
   transition: all 0.2s ease-in-out;
-  background: #ff0000;
+  background: var(--heatmap-cell-color);
 
   position: absolute;
   left: 0;
@@ -150,7 +164,7 @@ tr:nth-child(odd) {
 
 .heatmap-cell:hover .heatmap-cell__background {
   transition: all 0.2s ease-in-out;
-  background: #ff4949;
+  background: var(--heatmap-cell-color-hover);
 }
 
 /* .heatmap-cell::after {
