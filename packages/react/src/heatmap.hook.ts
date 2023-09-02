@@ -12,11 +12,12 @@ const pureGetHeatmapBarRanges = ({
   steps,
   reverse,
   max,
+  min,
 }: HeatmapBarRangeProps & {
   max: number;
+  min: number;
 }): HeatmapBarRange[] => {
   // TODO: get the actual min
-  const min = 0;
 
   const ranges: HeatmapBarRange[] = [
     { start: Number.MIN_SAFE_INTEGER, end: min },
@@ -36,12 +37,12 @@ const pureGetHeatmapBarRanges = ({
   return reverse ? ranges.reverse() : ranges;
 };
 
-export const useHeatmapBar = ({ max }: { max: number }) => {
+export const useHeatmapBar = ({ max, min }: { max: number; min: number }) => {
   const getHeatmapBarRanges = useCallback(
     ({ steps = 4, reverse = false }: Partial<HeatmapBarRangeProps>) => {
-      return pureGetHeatmapBarRanges({ max, reverse, steps });
+      return pureGetHeatmapBarRanges({ max, reverse, steps, min });
     },
-    [max]
+    [max, min]
   );
 
   return { getHeatmapBarRanges };
@@ -50,19 +51,28 @@ export const useHeatmapBar = ({ max }: { max: number }) => {
 type HeatmapHookProps = {
   data: number[][];
   max?: number;
+  startAtZero?: boolean;
   // TODO: add steps
 };
 
 export const getAllValuesFromData = ({
   data,
 }: Pick<HeatmapHookProps, "data">) => {
-  return data.reduce((acc, curr) => acc.concat(curr), [] as number[]);
+  const raw = data.reduce((acc, curr) => acc.concat(curr), [] as number[]);
+  return Array.from(new Set(raw));
 };
 
 const getMaxFromArray = (numbers: number[]) => {
   return numbers.reduce(
     (prev, curr) => (curr > prev ? curr : prev),
     Number.MIN_SAFE_INTEGER
+  );
+};
+
+const getMinFromArray = (numbers: number[]) => {
+  return numbers.reduce(
+    (prev, curr) => (curr < prev ? curr : prev),
+    Number.MAX_SAFE_INTEGER
   );
 };
 
@@ -88,17 +98,30 @@ const pureGetRelativePercentageFromValue = (
 /**
  * Assumes positive numbers
  */
-export const useHeatmap = ({ data, max: candidateMax }: HeatmapHookProps) => {
+export const useHeatmap = ({
+  data,
+  max: candidateMax,
+  startAtZero = true,
+}: HeatmapHookProps) => {
+  const everyValue = useMemo(() => getAllValuesFromData({ data }), [data]);
+
   const max = useMemo(() => {
     if (candidateMax !== undefined) {
       return candidateMax;
     }
 
-    const values = getAllValuesFromData({ data });
-    return getMaxFromArray(values);
-  }, [data, candidateMax]);
+    return getMaxFromArray(everyValue);
+  }, [everyValue, candidateMax]);
 
-  const { getHeatmapBarRanges } = useHeatmapBar({ max });
+  const min = useMemo(() => {
+    if (startAtZero) {
+      return 0;
+    }
+
+    return getMinFromArray(everyValue);
+  }, [everyValue, startAtZero]);
+
+  const { getHeatmapBarRanges } = useHeatmapBar({ max, min });
 
   const getRelativePercentageFromValue = useCallback(
     (props: GetRelativePercentageFromValueProps) => {
