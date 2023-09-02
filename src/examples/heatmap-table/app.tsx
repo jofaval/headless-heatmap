@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useState } from "react";
+import React, { PropsWithChildren, useId, useState } from "react";
 import {
   HeatmapBarRange,
   getAllValuesFromData,
@@ -41,7 +41,6 @@ type HeatmapBarProps = {
   filterByRange: (props: { start: number; end: number }) => void;
   reverse?: boolean;
   steps?: number;
-  distanceFromTable?: number;
 };
 
 function HeatmapBar({
@@ -51,11 +50,19 @@ function HeatmapBar({
   filterByRange,
   reverse,
   steps,
-  distanceFromTable = 35,
 }: HeatmapBarProps) {
+  const indicesId = useId();
+  const indicesWidth = document.getElementById(indicesId)?.clientWidth;
+
   return (
-    <div className="heatmap-bar" style={{ right: -distanceFromTable }}>
-      <div className="indices">
+    <div
+      className="heatmap-bar"
+      style={{
+        right: -((indicesWidth ?? 0) + 20),
+      }}>
+      <div className={classNames("gradient", orientation)} />
+
+      <div className="indices" id={indicesId}>
         {getHeatmapBarRanges({ reverse, steps }).map(({ end, start }) => (
           <div
             className="index"
@@ -65,7 +72,6 @@ function HeatmapBar({
           </div>
         ))}
       </div>
-      <div className={classNames("gradient", orientation)} />
 
       <HeatmapBarCursor hoverPercentage={hoverPercentage} />
     </div>
@@ -194,7 +200,6 @@ function App() {
             getHeatmapBarRanges={getHeatmapBarRanges}
             hoverPercentage={hoverPercentage}
             orientation="vertical"
-            distanceFromTable={currentMax.toString().length * 12.5}
           />
         ) : null}
       </main>

@@ -54,7 +54,6 @@ export const useHeatmapBar = ({
       let steps = candidateSteps;
       if (!steps) {
         steps = Math.max(Math.round(rows / 2 - 1), 1);
-        console.log({ rows, steps });
       }
 
       return pureGetHeatmapBarRanges({ max, reverse, steps, min });
