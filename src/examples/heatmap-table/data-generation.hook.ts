@@ -1,6 +1,6 @@
 import { Reducer, useMemo, useReducer } from "react";
 
-const INITIAL_CONFIGURATION = { rows: 100, cols: 20, max: 2_000 };
+const INITIAL_CONFIGURATION = { rows: 10, cols: 10, max: 2_000 };
 type Configuration = typeof INITIAL_CONFIGURATION;
 
 type ConfigurationReducer = Reducer<

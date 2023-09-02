@@ -23,6 +23,7 @@ type HeatmapBarProps = {
   filterByRange: (props: { start: number; end: number }) => void;
   reverse?: boolean;
   steps?: number;
+  distanceFromTable?: number;
 };
 
 function HeatmapBar({
@@ -32,14 +33,13 @@ function HeatmapBar({
   filterByRange,
   reverse = true,
   steps = 4,
+  distanceFromTable = 35,
 }: HeatmapBarProps) {
   return (
-    <div>
+    <div className="heatmap-bar" style={{ right: -distanceFromTable }}>
       {hoverPercentage !== undefined ? (
         <div className="cursor" style={{ top: hoverPercentage }}></div>
       ) : null}
-
-      <div className={classNames("gradient", orientation)} />
 
       <div className="indices">
         {getHeatmapBarRanges({ reverse, steps }).map(({ end, start }) => (
@@ -51,6 +51,8 @@ function HeatmapBar({
           </div>
         ))}
       </div>
+
+      <div className={classNames("gradient", orientation)}> </div>
     </div>
   );
 }
@@ -93,7 +95,7 @@ function HeatmapRow({ children }: PropsWithChildren) {
   return <tr>{children}</tr>;
 }
 
-const SHOW_BAR = false;
+const SHOW_BAR = true;
 
 function App() {
   const { cols, max, onChange, rows } = useConfiguration();
@@ -174,6 +176,7 @@ function App() {
             getHeatmapBarRanges={getHeatmapBarRanges}
             hoverPercentage={hoverPercentage}
             orientation="vertical"
+            distanceFromTable={currentMax.toString().length * 12.5}
           />
         ) : null}
       </main>

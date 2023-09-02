@@ -7,6 +7,7 @@ export type HeatmapBarRange = {
 
 type HeatmapBarRangeProps = { reverse: boolean; steps: number };
 
+// TODO: refinement needed
 const pureGetHeatmapBarRanges = ({
   steps,
   reverse,
@@ -14,7 +15,12 @@ const pureGetHeatmapBarRanges = ({
 }: HeatmapBarRangeProps & {
   max: number;
 }): HeatmapBarRange[] => {
-  const ranges: HeatmapBarRange[] = [];
+  // TODO: get the actual min
+  const min = 0;
+
+  const ranges: HeatmapBarRange[] = [
+    { start: Number.MIN_SAFE_INTEGER, end: min },
+  ];
 
   const stepSize = max / steps;
   for (let index = 1; index <= steps; index++) {

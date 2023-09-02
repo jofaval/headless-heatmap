@@ -55,6 +55,48 @@ input {
   padding: 20px;
 }
 
+.heatmap {
+  position: relative;
+}
+
+.heatmap-bar {
+  position: absolute;
+  right: -35px;
+  bottom: 0;
+
+  height: 100%;
+
+  display: flex;
+}
+
+.heatmap-bar .gradient {
+  height: 100%;
+  width: 20px;
+
+  border-radius: 5px;
+  background: linear-gradient(to bottom, red 0%, transparent 100%);
+}
+/* .heatmap-bar .gradient.vertical */
+
+.indices {
+  /* just a SCSS variable name */
+  --spacing: 20px;
+
+  text-align: right;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  /* height: calc(100% - var(--spacing)); */
+  /* margin-top: calc(var(--spacing) / 2); */
+  margin-right: 10px;
+}
+
+.heatmap__table {
+  margin: 25px;
+}
+
 table,
 tbody,
 tr,
@@ -65,10 +107,6 @@ th {
 
 tr:nth-child(odd) {
   background-color: rgba(0, 0, 0, 0.3);
-}
-
-.heatmap__table {
-  margin: 25px;
 }
 
 .row-header {
