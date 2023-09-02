@@ -13,6 +13,23 @@ const classNames = (...classes: (string | undefined)[]) => {
   return classes.filter(Boolean).join(" ");
 };
 
+type HeatmapBarCursorProps = {
+  hoverPercentage: number | undefined;
+};
+
+function HeatmapBarCursor({ hoverPercentage }: HeatmapBarCursorProps) {
+  if (hoverPercentage === undefined) {
+    return null;
+  }
+
+  const cursorHeight =
+    document.getElementById("heatmap-bar-cursor")?.clientHeight;
+
+  const bottom = `calc(${hoverPercentage}% - ${cursorHeight ?? 0}px)`;
+
+  return <div className="cursor" id="heatmap-bar-cursor" style={{ bottom }} />;
+}
+
 type HeatmapBarProps = {
   hoverPercentage: number | undefined;
   orientation?: string;
@@ -37,22 +54,19 @@ function HeatmapBar({
 }: HeatmapBarProps) {
   return (
     <div className="heatmap-bar" style={{ right: -distanceFromTable }}>
-      {hoverPercentage !== undefined ? (
-        <div className="cursor" style={{ top: hoverPercentage }}></div>
-      ) : null}
-
       <div className="indices">
         {getHeatmapBarRanges({ reverse, steps }).map(({ end, start }) => (
           <div
             className="index"
             // TODO: add padding right so that it hovers over the gradient
             onClick={() => filterByRange({ end, start })}>
-            {end}
+            {Math.round(end)}
           </div>
         ))}
       </div>
+      <div className={classNames("gradient", orientation)} />
 
-      <div className={classNames("gradient", orientation)}> </div>
+      <HeatmapBarCursor hoverPercentage={hoverPercentage} />
     </div>
   );
 }
@@ -66,9 +80,9 @@ type HeatmapCellProps = {
 
 function HeatmapCell({
   percentage,
-  value,
   selected,
   setHoverPercentage,
+  value,
 }: HeatmapCellProps) {
   return (
     <td
@@ -80,6 +94,7 @@ function HeatmapCell({
         style={{ opacity: percentage / 100 }}
         className="heatmap-cell__background"
       />
+
       <div
         className={classNames(
           "heatmap-cell__value",
@@ -176,7 +191,7 @@ function App() {
             getHeatmapBarRanges={getHeatmapBarRanges}
             hoverPercentage={hoverPercentage}
             orientation="vertical"
-            distanceFromTable={(currentMax.toString().length + 3) * 12.5}
+            distanceFromTable={currentMax.toString().length * 12.5}
           />
         ) : null}
       </main>
