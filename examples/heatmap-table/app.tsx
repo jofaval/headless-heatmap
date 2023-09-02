@@ -4,6 +4,7 @@ import {
   getAllValuesFromData,
   useHeatmap,
 } from "../../packages/react/src/heatmap.hook";
+import { useConfiguration, useDataGeneration } from "./data-generation.hook";
 
 const classNames = (...classes: (string | undefined)[]) => {
   return classes.filter(Boolean).join(" ");
@@ -83,23 +84,44 @@ function HeatmapRow({ children }: PropsWithChildren) {
   return <tr>{children}</tr>;
 }
 
-const ROWS = 10;
-const COLS = 10;
+const capitalize = <T extends string>(text: T): Capitalize<Lowercase<T>> => {
+  const transformed =
+    text.charAt(0).toLocaleUpperCase() + text.substring(1).toLocaleLowerCase();
 
-const MAX_NUMBER = 20;
-const data = Array.from(Array(ROWS).keys()).map(() => {
-  return Array.from(Array(COLS).keys()).map(() => {
-    return Math.floor(Math.random() * MAX_NUMBER);
-  });
-});
+  return transformed as Capitalize<Lowercase<T>>;
+};
+
+function Input({
+  onChange,
+  value,
+  name,
+}: {
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  value: number;
+  name: string;
+}) {
+  return (
+    <div className="form-group">
+      <label htmlFor={name}>{`${capitalize(name)}:`}</label>
+
+      <input
+        name={name}
+        id={name}
+        type="number"
+        onChange={onChange}
+        value={value}
+      />
+    </div>
+  );
+}
 
 function App() {
-  const columnHeaders = Array.from(Array(ROWS).keys()).map(
-    (_, index) => `Column ${index + 1}`
-  );
-  const rowHeaders = Array.from(Array(COLS).keys()).map(
-    (_, index) => `Row ${index + 1}`
-  );
+  const { cols, max, onChange, rows } = useConfiguration();
+  const { columnHeaders, data, rowHeaders } = useDataGeneration({
+    cols,
+    max,
+    rows,
+  });
 
   const { getHeatmapRows, getHeatmapBarRanges } = useHeatmap({ data });
   const [hoverPercentage, setHoverPercentage] = useState<number>();
@@ -114,37 +136,45 @@ function App() {
 
   return (
     <div>
-      <table className={filteredCells.length ? "--with-selection" : ""}>
-        <thead>
-          {columnHeaders.map((caption) => (
-            <th>{caption}</th>
-          ))}
-        </thead>
+      <header>
+        <Input onChange={onChange} name="rows" value={rows} />
+        <Input onChange={onChange} name="cols" value={cols} />
+        <Input onChange={onChange} name="max" value={max} />
+      </header>
 
-        <tbody>
-          {getHeatmapRows().map((row, rowIndex) => (
-            <HeatmapRow>
-              <td className="row-header">{rowHeaders[rowIndex]}</td>
+      <main className="heatmap">
+        <table className={filteredCells.length ? "--with-selection" : ""}>
+          <thead>
+            {columnHeaders.map((caption) => (
+              <th>{caption}</th>
+            ))}
+          </thead>
 
-              {row.map(({ percentage, value }) => (
-                <HeatmapCell
-                  percentage={percentage}
-                  value={value}
-                  selected={filteredCells.includes(value)}
-                  setHoverPercentage={setHoverPercentage}
-                />
-              ))}
-            </HeatmapRow>
-          ))}
-        </tbody>
-      </table>
+          <tbody>
+            {getHeatmapRows().map((row, rowIndex) => (
+              <HeatmapRow>
+                <td className="row-header">{rowHeaders[rowIndex]}</td>
 
-      <HeatmapBar
-        filterByRange={filterByRange}
-        getHeatmapBarRanges={getHeatmapBarRanges}
-        hoverPercentage={hoverPercentage}
-        orientation="vertical"
-      />
+                {row.map(({ percentage, value }) => (
+                  <HeatmapCell
+                    percentage={percentage}
+                    value={value}
+                    selected={filteredCells.includes(value)}
+                    setHoverPercentage={setHoverPercentage}
+                  />
+                ))}
+              </HeatmapRow>
+            ))}
+          </tbody>
+        </table>
+
+        <HeatmapBar
+          filterByRange={filterByRange}
+          getHeatmapBarRanges={getHeatmapBarRanges}
+          hoverPercentage={hoverPercentage}
+          orientation="vertical"
+        />
+      </main>
     </div>
   );
 }
