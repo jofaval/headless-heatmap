@@ -1,6 +1,11 @@
 import { Reducer, useMemo, useReducer } from "react";
 
-const INITIAL_CONFIGURATION = { rows: 10, cols: 10, max: 2_000 };
+const INITIAL_CONFIGURATION = {
+  rows: 10,
+  cols: 10,
+  max: 2_000,
+  chance: 4,
+};
 type Configuration = typeof INITIAL_CONFIGURATION;
 
 type ConfigurationReducer = Reducer<
@@ -9,7 +14,7 @@ type ConfigurationReducer = Reducer<
 >;
 
 export const useConfiguration = () => {
-  const [{ cols, max, rows }, updateConfiguration] =
+  const [{ cols, max, rows, chance }, updateConfiguration] =
     useReducer<ConfigurationReducer>(
       (state, { name, value }) => ({ ...state, [name]: value }),
       INITIAL_CONFIGURATION
@@ -22,19 +27,42 @@ export const useConfiguration = () => {
     });
   };
 
-  return { cols, max, rows, onChange };
+  return { cols, max, rows, onChange, chance };
 };
 
 const ROW_COL_HEADER = "";
 
-export const useDataGeneration = ({ cols, max, rows }: Configuration) => {
+const oneIn = (chance: number) => {
+  return Math.random() < 1 / chance;
+};
+
+const getRandom = ({ max, chance }: { max: number; chance: number }) => {
+  const difference = 4;
+  const base = Math.round((Math.random() * max) / difference);
+
+  if (!oneIn(chance)) {
+    return base;
+  }
+
+  const extra =
+    Math.round((Math.random() * max) / difference) * (difference - 1);
+
+  return base + extra;
+};
+
+export const useDataGeneration = ({
+  cols,
+  max,
+  rows,
+  chance,
+}: Configuration) => {
   const data = useMemo(() => {
     return Array.from(Array(rows).keys()).map(() => {
       return Array.from(Array(cols).keys()).map(() => {
-        return Math.floor(Math.random() * max);
+        return getRandom({ max, chance });
       });
     });
-  }, [cols, max, rows]);
+  }, [cols, max, rows, chance]);
 
   const columnHeaders = useMemo(() => {
     return [ROW_COL_HEADER].concat(

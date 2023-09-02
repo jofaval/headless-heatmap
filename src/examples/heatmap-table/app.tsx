@@ -121,11 +121,12 @@ const SHOW_BAR = true;
 const SHOW_CURRENT_PERCENTAGE = false;
 
 function App() {
-  const { cols, max, onChange, rows } = useConfiguration();
+  const { cols, max, onChange, rows, chance } = useConfiguration();
   const { columnHeaders, data, rowHeaders } = useDataGeneration({
     cols,
     max,
     rows,
+    chance,
   });
 
   const {
@@ -150,6 +151,7 @@ function App() {
           <Input onChange={onChange} name="rows" value={rows} />
           <Input onChange={onChange} name="cols" value={cols} />
           <Input onChange={onChange} name="max" value={max} />
+          <Input onChange={onChange} name="chance" value={chance} />
         </div>
 
         <div className="current-max">
