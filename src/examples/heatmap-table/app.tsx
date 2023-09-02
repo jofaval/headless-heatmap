@@ -176,7 +176,7 @@ function App() {
             getHeatmapBarRanges={getHeatmapBarRanges}
             hoverPercentage={hoverPercentage}
             orientation="vertical"
-            distanceFromTable={currentMax.toString().length * 12.5}
+            distanceFromTable={(currentMax.toString().length + 3) * 12.5}
           />
         ) : null}
       </main>

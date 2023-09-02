@@ -23,12 +23,14 @@ const pureGetHeatmapBarRanges = ({
   ];
 
   const stepSize = max / steps;
-  for (let index = 1; index <= steps; index++) {
-    // the +1 might lead up to errors
-    ranges.push({
-      start: index - 1,
-      end: Math.round(index * stepSize) + 1,
-    });
+  let lastRange = ranges[0];
+  for (let index = 0; index < steps; index++) {
+    const lastEnd = lastRange?.end ?? 0;
+
+    const currentRange = { start: lastEnd, end: lastEnd + stepSize };
+    ranges.push(currentRange);
+
+    lastRange = currentRange;
   }
 
   return reverse ? ranges.reverse() : ranges;
