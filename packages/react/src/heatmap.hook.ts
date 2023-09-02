@@ -37,12 +37,29 @@ const pureGetHeatmapBarRanges = ({
   return reverse ? ranges.reverse() : ranges;
 };
 
-export const useHeatmapBar = ({ max, min }: { max: number; min: number }) => {
+export const useHeatmapBar = ({
+  max,
+  min,
+  rows,
+}: {
+  max: number;
+  min: number;
+  rows: number;
+}) => {
   const getHeatmapBarRanges = useCallback(
-    ({ steps = 4, reverse = false }: Partial<HeatmapBarRangeProps>) => {
+    ({
+      steps: candidateSteps,
+      reverse = true,
+    }: Partial<HeatmapBarRangeProps>) => {
+      let steps = candidateSteps;
+      if (!steps) {
+        steps = Math.max(Math.round(rows / 2 - 1), 1);
+        console.log({ rows, steps });
+      }
+
       return pureGetHeatmapBarRanges({ max, reverse, steps, min });
     },
-    [max, min]
+    [max, min, rows]
   );
 
   return { getHeatmapBarRanges };
@@ -121,7 +138,11 @@ export const useHeatmap = ({
     return getMinFromArray(everyValue);
   }, [everyValue, startAtZero]);
 
-  const { getHeatmapBarRanges } = useHeatmapBar({ max, min });
+  const { getHeatmapBarRanges } = useHeatmapBar({
+    max,
+    min,
+    rows: data.length,
+  });
 
   const getRelativePercentageFromValue = useCallback(
     (props: GetRelativePercentageFromValueProps) => {

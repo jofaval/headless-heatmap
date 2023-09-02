@@ -49,8 +49,8 @@ function HeatmapBar({
   orientation = "vertical",
   getHeatmapBarRanges,
   filterByRange,
-  reverse = true,
-  steps = 4,
+  reverse,
+  steps,
   distanceFromTable = 35,
 }: HeatmapBarProps) {
   return (
