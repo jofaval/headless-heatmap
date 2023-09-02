@@ -20,7 +20,7 @@ const pureGetHeatmapBarRanges = ({
   // TODO: get the actual min
 
   const ranges: HeatmapBarRange[] = [
-    { start: Number.MIN_SAFE_INTEGER, end: min },
+    // { start: Number.MIN_SAFE_INTEGER, end: min },
   ];
 
   const stepSize = max / steps;
