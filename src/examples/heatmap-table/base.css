@@ -75,6 +75,10 @@ th {
   padding: 7.5px 15px;
 }
 
+th:first-child {
+  visibility: hidden;
+}
+
 .row-header {
   padding: 15px;
 }

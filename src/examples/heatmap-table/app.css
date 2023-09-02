@@ -10,6 +10,14 @@
   /* BLUE */
   --heatmap-cell-color: hsl(200, 100%, 50%);
   --heatmap-cell-color-hover: hsl(200, 100%, 64%);
+
+  /* GREEN */
+  --heatmap-cell-color: hsl(100, 100%, 50%);
+  --heatmap-cell-color-hover: hsl(100, 100%, 64%);
+
+  /* PURPLE */
+  --heatmap-cell-color: hsl(300, 100%, 50%);
+  --heatmap-cell-color-hover: hsl(300, 100%, 64%);
 }
 
 .heatmap {
