@@ -22,10 +22,11 @@ function HeatmapBarCursor({ hoverPercentage }: HeatmapBarCursorProps) {
     return null;
   }
 
-  const cursorHeight =
-    document.getElementById("heatmap-bar-cursor")?.clientHeight;
+  // const cursorHeight =
+  //   document.getElementById("heatmap-bar-cursor")?.clientHeight;
+  const cursorHeight = 5;
 
-  const bottom = `calc(${hoverPercentage}% - ${cursorHeight ?? 0}px)`;
+  const bottom = `max(calc(${hoverPercentage}%), ${cursorHeight ?? 0}px)`;
 
   return <div className="cursor" id="heatmap-bar-cursor" style={{ bottom }} />;
 }
@@ -111,6 +112,7 @@ function HeatmapRow({ children }: PropsWithChildren) {
 }
 
 const SHOW_BAR = true;
+const SHOW_CURRENT_PERCENTAGE = false;
 
 function App() {
   const { cols, max, onChange, rows } = useConfiguration();
@@ -146,7 +148,8 @@ function App() {
 
         <div className="current-max">
           <div>Max: {currentMax}</div>
-          {hoverPercentage ? (
+
+          {SHOW_CURRENT_PERCENTAGE && hoverPercentage !== undefined ? (
             <div>Current percentage: {hoverPercentage?.toFixed(2)}%</div>
           ) : null}
         </div>
