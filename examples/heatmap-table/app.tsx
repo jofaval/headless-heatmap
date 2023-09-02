@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { PropsWithChildren, useState } from "react";
 import {
+  HeatmapBarRange,
   getAllValuesFromData,
   useHeatmap,
 } from "../../packages/react/src/heatmap.hook";
@@ -7,6 +8,77 @@ import {
 const classNames = (...classes: (string | undefined)[]) => {
   return classes.filter(Boolean).join(" ");
 };
+
+type HeatmapBarProps = {
+  hoverPercentage: number | undefined;
+  orientation?: string;
+  getHeatmapBarRanges: (props?: {
+    reverse?: boolean | undefined;
+    steps?: number | undefined;
+  }) => HeatmapBarRange[];
+  filterByRange: (props: { start: number; end: number }) => void;
+  reverse?: boolean;
+  steps?: number;
+};
+
+function HeatmapBar({
+  hoverPercentage,
+  orientation = "vertical",
+  getHeatmapBarRanges,
+  filterByRange,
+  reverse = true,
+  steps = 4,
+}: HeatmapBarProps) {
+  return (
+    <div>
+      {hoverPercentage !== undefined ? (
+        <div className="cursor" style={{ top: hoverPercentage }}></div>
+      ) : null}
+
+      <div className={classNames("gradient", orientation)} />
+
+      <div className="indices">
+        {getHeatmapBarRanges({ reverse, steps }).map(({ end, start }) => (
+          <div
+            className="index"
+            // TODO: add padding right so that it hovers over the gradient
+            onClick={() => filterByRange({ end, start })}>
+            {end}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HeatmapCell({
+  percentage,
+  value,
+  selected,
+  setHoverPercentage,
+}: {
+  percentage: number;
+  value: number;
+  selected: boolean;
+  setHoverPercentage: React.Dispatch<React.SetStateAction<number | undefined>>;
+}) {
+  return (
+    <td
+      className="heatmap-cell"
+      onMouseEnter={() => setHoverPercentage(percentage)}
+      onMouseLeave={() => setHoverPercentage(undefined)}>
+      <div
+        style={{ opacity: percentage }}
+        className="heatmap-cell__background"
+      />
+      <div className={selected ? "selected" : ""}>{value}</div>
+    </td>
+  );
+}
+
+function HeatmapRow({ children }: PropsWithChildren) {
+  return <tr>{children}</tr>;
+}
 
 function App() {
   const data = [];
@@ -27,7 +99,7 @@ function App() {
 
   return (
     <div>
-      <table>
+      <table className={filteredCells.length ? "--with-selection" : ""}>
         <thead>
           {headers.map((caption) => (
             <th>{caption}</th>
@@ -36,47 +108,28 @@ function App() {
 
         <tbody>
           {getHeatmapRows().map((row) => (
-            <tr>
+            <HeatmapRow>
+              <td className="row-header">Row</td>
+
               {row.map(({ percentage, value }) => (
-                <td
-                  className="heatmap-cell"
-                  onMouseEnter={() => setHoverPercentage(percentage)}
-                  onMouseLeave={() => setHoverPercentage(undefined)}>
-                  <div
-                    style={{ opacity: percentage }}
-                    className="heatmap-cell__background"
-                  />
-                  <div
-                    className={filteredCells.includes(value) ? "selected" : ""}>
-                    {value}
-                  </div>
-                </td>
+                <HeatmapCell
+                  percentage={percentage}
+                  value={value}
+                  selected={filteredCells.includes(value)}
+                  setHoverPercentage={setHoverPercentage}
+                />
               ))}
-            </tr>
+            </HeatmapRow>
           ))}
         </tbody>
       </table>
 
-      <div>
-        {hoverPercentage !== undefined ? (
-          <div className="cursor" style={{ top: hoverPercentage }}></div>
-        ) : null}
-
-        <div className={classNames("gradient", orientation)} />
-
-        <div className="indices">
-          {getHeatmapBarRanges({ reverse: true, steps: 4 }).map(
-            ({ end, start }) => (
-              <div
-                className="index"
-                // TODO: add padding right so that it hovers over the gradient
-                onClick={() => filterByRange({ end, start })}>
-                {end}
-              </div>
-            )
-          )}
-        </div>
-      </div>
+      <HeatmapBar
+        filterByRange={filterByRange}
+        getHeatmapBarRanges={getHeatmapBarRanges}
+        hoverPercentage={hoverPercentage}
+        orientation={orientation}
+      />
     </div>
   );
 }
