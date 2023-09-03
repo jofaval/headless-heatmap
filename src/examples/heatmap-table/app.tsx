@@ -118,7 +118,7 @@ function HeatmapRow({ children }: PropsWithChildren) {
 const SHOW_BAR = true;
 const SHOW_CURRENT_PERCENTAGE = false;
 
-const COLOR_SCHEME_OPTIONS = ["red", "blue", "green", "purple"];
+const COLOR_SCHEME_OPTIONS = ["red", "orange", "blue", "green", "purple"];
 type ColorScheme =
   (typeof COLOR_SCHEME_OPTIONS)[keyof typeof COLOR_SCHEME_OPTIONS];
 const SELECTED_SCHEME: ColorScheme = "blue";

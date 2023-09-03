@@ -35,6 +35,11 @@ body.red {
   --heatmap-cell-color-hover: hsl(0, 100%, 64%);
 }
 
+body.orange {
+  --heatmap-cell-color: hsl(30, 100%, 50%);
+  --heatmap-cell-color-hover: hsl(30, 100%, 64%);
+}
+
 body.blue {
   --heatmap-cell-color: hsl(200, 100%, 50%);
   --heatmap-cell-color-hover: hsl(200, 100%, 64%);
