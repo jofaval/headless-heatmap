@@ -78,6 +78,12 @@
   border-bottom: 1px solid var(--text-color);
 }
 
+.indices::after {
+  content: "0";
+  position: absolute;
+  bottom: -1em;
+}
+
 .heatmap-cell {
   cursor: pointer;
   /* padding: 10px; */
