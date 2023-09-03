@@ -55,10 +55,25 @@ body.purple {
   --heatmap-cell-color-hover: hsl(300, 100%, 64%);
 }
 
+#root {
+  max-width: 100%;
+}
+
 .header {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.configuration-inputs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  padding: 20px;
 }
 
 .current-max {
@@ -82,6 +97,10 @@ input {
   border-radius: 5px;
 }
 
+select {
+  flex: 100%;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -92,17 +111,16 @@ input {
   font-weight: bold;
 }
 
-.configuration-inputs {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-
-  padding: 20px;
+.heatmap {
+  max-width: 1200px;
 }
-
 .heatmap__table {
   margin: 25px;
+  overflow: auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+  display: block;
 }
 
 table,
