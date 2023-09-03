@@ -13,15 +13,18 @@ const pureGetHeatmapBarRanges = ({
   reverse,
   max,
   min,
+  useMin = false,
 }: HeatmapBarRangeProps & {
   max: number;
   min: number;
+  useMin?: boolean;
 }): HeatmapBarRange[] => {
-  // TODO: get the actual min
+  const ranges: HeatmapBarRange[] = [];
 
-  const ranges: HeatmapBarRange[] = [
-    // { start: Number.MIN_SAFE_INTEGER, end: min },
-  ];
+  // TODO: get the actual min
+  if (useMin) {
+    ranges.push({ start: Number.MIN_SAFE_INTEGER, end: min });
+  }
 
   const stepSize = max / steps;
   let lastRange = ranges[0];
